@@ -60,3 +60,16 @@ Joined and Merged 300,587 Accounts and 144,197 Delegations and tallied staking s
 The source code and data are explained here.
 
 [ B ] dump it to two tables in postgreSQL and write the go program to query the database. 
+
+Once we dump data in postgreSQL as balances_table and delegation_table. we joined two tables, and add atoms amount and shares amount to get the total atoms that each account owns. 
+
+PROS: a lot more flexible to run SQL against the data once it is imported into the database, especially when we want to retrieve other insights from the same dataset.
+
+CONS: complicated to set up at the beginning. 
+
+For this part of the requirement, it is the same as getting the current balance of each account.
+> So if there were no transactions signed by A1 between T1 and T2, (and no unbondings before T1), the result would be simply [{A1;C1}] where C1 are the coins held by A1 at time T1. 
+
+For this part of the requirement, it needs to calculate how many coins are added or removed from the account.  Since the exported state file does not contains individual transactions. We can loop through send, delegation, and unbound messages from the state.db to a postgreSQL database and then query it. 
+
+> given an account A1 at a given block height in the past T1, and current block time T2, create a list of where all the account tokens are now, as a list of {Account;Coins} tuples.

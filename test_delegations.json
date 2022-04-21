@@ -1,0 +1,26 @@
+[{
+     "delegator_address": "cosmos1qrsxstyxns0eld4fwsslz3canzezwv8waa2jew",
+     "shares": "173300.000000000000000000",
+     "validator_address": "cosmosvaloper1n229vhepft6wnkt5tjpwmxdmcnwz55jv3vp7ed"
+   },
+  {
+    "delegator_address": "cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d",
+    "shares": "1039602.000000000000000000",
+    "validator_address": "cosmosvaloper1tfk30mq5vgqjdly92kkhhq3raev2hnz6eete3"
+  },
+  {
+     "delegator_address": "cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer",
+    "shares": "2070000.000000000000000000",
+    "validator_address": "cosmosvaloper196ax4vc0lwpxndu9dyhvca7jhxp70rmcvrj90c"
+  },
+  {
+   "delegator_address": "cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d",
+   "shares": "1225270.000000000000000000",
+   "validator_address": "cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0"
+ },
+  {
+   "delegator_address": "cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer",
+   "shares": "1731754.000000000000000000",
+   "validator_address": "cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0"
+ }
+]

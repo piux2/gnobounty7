@@ -1,0 +1,24 @@
+[
+ {
+    "address": "cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d",
+    "coins": [
+      {
+        "amount": "34141001",
+        "denom": "uatom"
+      }
+    ]
+  },
+  {
+    "address": "cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer",
+    "coins": []
+  },
+  {
+    "address": "cosmos1qajhwf6gs0ezyjmx2t96qjvyxugaefuwpf7qae",
+    "coins": [
+      {
+        "amount": "11343922",
+        "denom": "uatom"
+      }
+    ]
+  }
+]

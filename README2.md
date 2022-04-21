@@ -110,7 +110,7 @@ The shares are the uatoms in each delgation and on wallet address could have mul
      git clone https://github.com/piux2/gnobounty7
      go install
 
-     ./extract merge --b balances.json --d delegations.json
+     ./extract merge --b balances.json --d delegations.json > merged.json
  
  
  #### RESULTS: Less than 3 seconds
@@ -120,3 +120,8 @@ The shares are the uatoms in each delgation and on wallet address could have mul
     real	0m2.437s
     user	0m2.085s
     sys	0m0.600s
+
+
+To find a account's merged balances.
+
+        jq '.[] | select(.address=="cosmos1p2a8vx7r00ruz2xmdwm0vk0n000000mng6ccla")' merged.json

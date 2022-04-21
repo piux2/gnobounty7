@@ -69,7 +69,7 @@ For this part of the requirement, it needs to calculate how many coins are added
 
 ### SOLUTION A 
 
-The app_state.bank.balances contains address and coins[]  (fake data) 
+The app_state.bank.balances contains address and coins[]  (not real data on the chain) 
 The coins here are the tokens in the wallet.It does not include delegations to validators
 
             [{
@@ -86,7 +86,7 @@ The coins here are the tokens in the wallet.It does not include delegations to v
             ]
           }]
           
-app_state.staking.delegations contains (fake data) 
+app_state.staking.delegations contains (not real data on the chain) 
 The shares are the uatoms in each delgation and on wallet address could have multiple delgations. 
 
      [{
@@ -110,7 +110,7 @@ The shares are the uatoms in each delgation and on wallet address could have mul
      git clone https://github.com/piux2/gnobounty7
      go install
 
-     ./extract merge --b balances.json --d delegations.json
+     ./extract merge --b balances.json --d delegations.json > merged.json
  
  
  #### RESULTS: Less than 3 seconds
@@ -120,3 +120,8 @@ The shares are the uatoms in each delgation and on wallet address could have mul
     real	0m2.437s
     user	0m2.085s
     sys	0m0.600s
+
+
+To find a account's merged balances.
+
+        jq '.[] | select(.address=="cosmos1p2a8vx7r00ruz2xmdwm0vk0n000000mng6ccla")' merged.json

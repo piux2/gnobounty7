@@ -69,7 +69,7 @@ For this part of the requirement, it needs to calculate how many coins are added
 
 ### SOLUTION A 
 
-The app_state.bank.balances contains address and coins[]  (fake data) 
+The app_state.bank.balances contains address and coins[]  (not real data on the chain) 
 The coins here are the tokens in the wallet.It does not include delegations to validators
 
             [{
@@ -86,7 +86,7 @@ The coins here are the tokens in the wallet.It does not include delegations to v
             ]
           }]
           
-app_state.staking.delegations contains (fake data) 
+app_state.staking.delegations contains (not real data on the chain) 
 The shares are the uatoms in each delgation and on wallet address could have multiple delgations. 
 
      [{

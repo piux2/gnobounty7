@@ -25,8 +25,11 @@ Same for the delegation, it has the current delegation state of each account wit
        jq  '.app_state.staking.delegations'  exported_unmodified_genesis.json > delegations.json
 
 There are  300,587 account
+
 There are  171,027 accounts with balances
+
 There are 144,197 records in the delegations
+
 
 Because delegated tokens are not part of the account balance, we will need to merge these two together to calculate how many tokens each account owns.  
 
@@ -50,9 +53,9 @@ CONS: not flexible. we have to modify the code and get additional insights into 
 
 Joined and Merged 300,587 Accounts and 144,197 Delegations and tallied staking shares for less than 3s. 
 
-real	0m2.437s
-user	0m2.085s
-sys	0m0.600s
+    real	0m2.437s
+    user	0m2.085s
+    sys	0m0.600s
 
 The source code and data are explained here.
 

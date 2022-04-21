@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -64,7 +65,7 @@ func runMain(cmd *command.Command, exec string, args []string) error {
 
 	}
 
-	return errors.New("unknown command: " + args[0])
+	return errors.New("unknown command: %s\n try: extractor help", args[0])
 
 }
 
@@ -123,18 +124,23 @@ func mergeApp(cmd *command.Command, args []string, iopts interface{}) error {
 	bfname := opts.BalanceFile
 	dfname := opts.DelegationFile
 
-	b := readBalances(bfname)
-	d := readDelegations(dfname)
-	m := merge(b, d)
-
-	v, err := json.MarshalIndent(m, "", " ")
+	b, err := readBalances(bfname)
 
 	if err != nil {
 
-		return err
-
+		return errors.New("can not parse balance file", err.Error())
 	}
-	cmd.Println(string(v))
+
+	d, err2 := readDelegations(dfname)
+
+	if err2 != nil {
+
+		return errors.New("can not parse delegations file", err2.Error())
+	}
+
+	m := merge(b, d)
+
+	prettyJson(m)
 
 	return nil
 
@@ -181,9 +187,10 @@ func merge(balances []Balance, delegations []Delegation) []Balance {
 
 			newBalance, err := mergeRecord(b, d)
 
+			// continue without interrupting merging process
 			if err != nil {
 
-				errors.New("failed to merge", err.Error())
+				fmt.Println("failed to merge", err.Error())
 			}
 
 			balances[indexB] = newBalance
@@ -198,6 +205,12 @@ func merge(balances []Balance, delegations []Delegation) []Balance {
 }
 
 func mergeRecord(b Balance, d Delegation) (Balance, error) {
+
+	// if we can not join records by address, ignore it.do nothing
+	if b.Address != d.DelegatorAddress {
+
+		return b, nil
+	}
 
 	// loop through []coins and if there is "share" denom, sum it,
 	// otherwise add a Coin{amount: shares, denom: "share"}
@@ -235,7 +248,7 @@ func mergeRecord(b Balance, d Delegation) (Balance, error) {
 
 }
 
-// TODO: There is an issue adding two numbers with large decical. see TestAddShares
+// TODO: There is an rounding issue adding two numbers with large decical. see TestAddShares
 // "1234567890.100000000000000000", "0.200000000000000000"
 func addShares(a string, b string) (string, error) {
 
@@ -262,37 +275,47 @@ func addShares(a string, b string) (string, error) {
 
 }
 
-func readBalances(bfname string) []Balance {
+func readBalances(bfname string) ([]Balance, error) {
 
 	bf, err := ioutil.ReadFile(bfname)
 
 	if err != nil {
 
-		panic(err)
+		return nil, errors.New("can not read balance file", bfname, err.Error())
 
 	}
 
 	balances := []Balance{}
-	json.Unmarshal(bf, &balances)
+	err = json.Unmarshal(bf, &balances)
 
-	return balances
+	if err != nil {
+
+		return nil, errors.New("can not parse balance file", bfname, err.Error())
+
+	}
+
+	return balances, nil
 
 }
 
-func readDelegations(dfname string) []Delegation {
+func readDelegations(dfname string) ([]Delegation, error) {
 
 	df, err := ioutil.ReadFile(dfname)
 
 	if err != nil {
 
-		panic(err)
+		return nil, errors.New("can not read delegation file", dfname, err.Error())
 
 	}
 	delegations := []Delegation{}
 
-	json.Unmarshal(df, &delegations)
+	err = json.Unmarshal(df, &delegations)
 
-	return delegations
+	if err != nil {
+		return nil, errors.New("can not parse delegation json file", dfname, err.Error())
+	}
+
+	return delegations, nil
 }
 
 // balance sort by Address
@@ -326,4 +349,18 @@ func (d delegationSort) Less(i, j int) bool {
 func (d delegationSort) Swap(i, j int) {
 
 	d[i], d[j] = d[j], d[i]
+}
+
+// visial review of the merged list.
+func prettyJson(a interface{}) error {
+
+	v, err := json.MarshalIndent(a, "", " ")
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(v))
+
+	return nil
 }

@@ -5,6 +5,7 @@
 
 https://github.com/gnolang/bounties/issues/28
 
+## [Part1](https://github.com/piux2/gnobounty7/blob/main/README.md)
 ## Part 2
 
 > part 2: given an account A1 at a given block height in the past T1, and current block time T2, create a list of where all the account tokens are now, as a list of {Account;Coins} tuples. So if there were no transactions signed by A1 between T1 and T2, (and no unbondings before T1), the result would be simply [{A1;C1}] where C1 are the coins held by A1 at time T1. Implementation of this feature would start with SendTx, and then become staking aware. I don't know how best to do that off the top of my head. This also probably shouldn't use RPC but instead use go functions to iterate over blocks to avoid RPC overhead. That said, I might be wrong... if the RPC can handle say a month's worth of cosmoshub-4 blocks through localhost RPC in an hour, then it's fine. This might be feasible with unix pipes, or websockets.

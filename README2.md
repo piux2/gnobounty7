@@ -50,15 +50,7 @@ PROS: simple
 
 CONS: not flexible. we have to modify the code and get additional insights into the data set. 
 
-#### RESULTS: Less than 3 seconds
 
-Joined and Merged 300,587 Accounts and 144,197 Delegations and tallied staking shares for less than 3s. 
-
-    real	0m2.437s
-    user	0m2.085s
-    sys	0m0.600s
-
-The source code and data are explained here.
 
 [ B ] dump it to two tables in postgreSQL and write the go program to query the database. 
 
@@ -74,3 +66,57 @@ For this part of the requirement, it is the same as getting the current balance 
 For this part of the requirement, it needs to calculate how many coins are added or removed from the account.  Since the exported state file does not contains individual transactions. We can loop through send, delegation, and unbound messages from the state.db to a postgreSQL database and then query it. 
 
 > given an account A1 at a given block height in the past T1, and current block time T2, create a list of where all the account tokens are now, as a list of {Account;Coins} tuples.
+
+## SOLUTION A 
+
+The app_state.bank.balances contains address and coins[]  (fake data) 
+The coins here are the tokens in the wallet.It does not include delegations to validators
+
+            [{
+            "address": "cosmos1p2aqt5ux9rquacfjm7ch8h7al00000jjdewgzp",
+            "coins": []
+          },
+          {
+            "address": "cosmos1p2a8vx7r00ruz2xmdwm0vk0n000000mng6ccla",
+            "coins": [
+              {
+                "amount": "18513869",
+                "denom": "uatom"
+              }
+            ]
+          }]
+          
+app_state.staking.delegations contains (fake data) 
+The shares are the uatoms in each delgation and on wallet address could have multiple delgations. 
+
+     [{
+        "delegator_address": "cosmos1p2a8vx7rskruz2xmdwm0vk0n000000mng6ccla",
+        "shares": "14180000.000000000000000000",
+        "validator_address": "cosmosvaloper100juzk0gdmwu00x4phug7m3ymyatxlh9734g4w"
+      },
+     {
+        "delegator_address": "cosmos1p2a8vx7rskruz2xmdwm0vk0n000000mng6ccla",
+        "shares": "2345.000000000000000000",
+        "validator_address": "cosmosvaloper12w6ty00j004l8zdla3v4x0jt8lt4rcz5gk7zg2"
+      }]
+ We will need to join the balances and delegations on address and merge two record to one balance record. 
+ If there are multi delegations shares we will need to add them togather
+ 
+ Usage: 
+ 
+     jq '.app_state.bank.balances' exported_unmodified_genesis.json > balances.json
+     jq '.app_state.staking.delegations'  exported_unmodified_genesis.json > delegations.json
+
+     git clone https://github.com/piux2/gnobounty7
+     go install
+
+     ./extract merge --b balances.json --d delegations.json
+ 
+ 
+ #### RESULTS: Less than 3 seconds
+
+ Joined and Merged 300,587 Accounts and 144,197 Delegations and tallied staking shares for less than 3s. 
+
+    real	0m2.437s
+    user	0m2.085s
+    sys	0m0.600s

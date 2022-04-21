@@ -67,7 +67,7 @@ For this part of the requirement, it needs to calculate how many coins are added
 
 > given an account A1 at a given block height in the past T1, and current block time T2, create a list of where all the account tokens are now, as a list of {Account;Coins} tuples.
 
-## SOLUTION A 
+### SOLUTION A 
 
 The app_state.bank.balances contains address and coins[]  (fake data) 
 The coins here are the tokens in the wallet.It does not include delegations to validators

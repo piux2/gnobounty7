@@ -55,3 +55,9 @@ The token name and denom mapping can be found here [token hub](https://github.co
 [Continue Here](https://github.com/piux2/gnobounty7/blob/main/README2.md)
 
 
+## Part 3
+[Continue Here](https://github.com/piux2/gnobounty7/blob/main/README3.md)
+
+
+
+

@@ -1,0 +1,10 @@
+app_bd = "application"
+chain_id = "cosmos-hub4"
+db_backend = "goleveldb"
+db_dir = "~/.gaia/data/"
+psql_dbname = "cosmos_hub4"
+psql_host = "localhost"
+psql_password = "psink"
+psql_port = 5432
+psql_user = "app"
+sink_on = false

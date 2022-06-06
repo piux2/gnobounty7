@@ -29,19 +29,19 @@ func ExtractApp(cmd *command.Command, args []string, iopts interface{}) error {
 	ProfileStateDB(s)
 
 	//////////
-	/*
-		err := ExtractValidators(s, true)
 
-		if err != nil {
+	err := ExtractValidators(s, true)
 
-			panic(err)
-		}
+	if err != nil {
 
-		err = ExtractVotes(s, true)
-		if err != nil {
+		panic(err)
+	}
 
-			panic(err)
-		}
-	*/
+	err = ExtractVotes(s, true)
+	if err != nil {
+
+		panic(err)
+	}
+
 	return nil
 }

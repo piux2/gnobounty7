@@ -125,3 +125,9 @@ The shares are the uatoms in each delgation and on wallet address could have mul
 To find a account's merged balances.
 
         jq '.[] | select(.address=="cosmos1p2a8vx7r00ruz2xmdwm0vk0n000000mng6ccla")' merged.json
+        
+        
+        
+## Part 3
+[Continue Here](https://github.com/piux2/gnobounty7/blob/main/README3.md)
+

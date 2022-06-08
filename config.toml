@@ -1,8 +1,8 @@
 app_bd = "application"
 chain_id = "cosmos-hub4"
 db_backend = "goleveldb"
-db_dir = "~/.gaia/data/"
-psql_dbname = "cosmos_hub4"
+db_dir = "/node/default/data/"
+psql_dbname = "cosmos_hub4_default"
 psql_host = "localhost"
 psql_password = "psink"
 psql_port = 5432

@@ -34,6 +34,8 @@ func main() {
 type AppItem = command.AppItem
 type AppList = command.AppList
 
+//TODO: add --profile only flag for extract app
+
 var mainApps AppList = []AppItem{
 
 	{App: merge.MergeApp, Name: "merge", Desc: "merge balances and delegations from exported genesis states", Defaults: merge.DefaultMergeOptions},

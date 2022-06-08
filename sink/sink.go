@@ -196,6 +196,10 @@ func (psink *PsqlSink) findResponsesEvents(r *tmstate.ABCIResponses, height int6
 	// in the same hight.
 	// Reference: https://github.com/tendermint/tendermint/blob/8682489551b69d6b31947c9253c8c2f86fe4f2c7/cmd/tendermint/commands/reindex_event.go#L195
 
+	if r.EndBlock == nil { // the block does not have any transaction or event
+
+		return nil
+	}
 	k, ok := matchKeywords(r.EndBlock.Events, keywords)
 
 	if ok == true && k != "" {

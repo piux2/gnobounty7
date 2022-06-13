@@ -1,0 +1,43 @@
+[
+
+  {
+    "val_address": "cosmosvaloper1n229vhepft6wnkt5tjpwmxdmcnwz55jv3vp7ed",
+    "acc_address": "cosmos1qtxec3ggeuwnca9mmngw7vf6ctw54cppusml9r",
+    "moniker": "test validator 1",
+    "tokens": "883350665",
+    "shares": "883435145.637346060773787067",
+    "ts_ratio": "0.999904372564569963",
+    "height": 10562840
+  },
+
+  {
+    "val_address": "cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0",
+    "acc_address": "cosmos1zmr5mglwkkru7m3q8sxcg66gxr508v6hltcj9m",
+    "moniker": "test validator 2",
+    "tokens": "4373508",
+    "shares": "4373508.000000000000000000",
+    "ts_ratio": "1.000000000000000000",
+    "height": 10562840
+  },
+
+  {
+    "val_address": "cosmosvaloper1tfk30mq5vgqjdly92kkhhq3raev2hnz6eete3",
+    "acc_address": "cosmos1998928nfs697ep5d825y5jah0nq9zrtd2ms37d",
+    "moniker": "test validator 3",
+    "tokens": "214104045",
+    "shares": "214361133.454145305958021670",
+    "ts_ratio": "0.998800675990079607",
+    "height": 10562840
+  },
+
+  {
+    "val_address": "cosmosvaloper196ax4vc0lwpxndu9dyhvca7jhxp70rmcvrj90c",
+    "acc_address": "cosmos19v9ej55ataqrfl39v83pf4e0dm69u89rkuasx5",
+    "moniker": "test validator 4",
+    "tokens": "475008",
+    "shares": "500005.956625917197747696",
+    "ts_ratio": "0.950004682354975250",
+    "height": 10562840
+  }
+
+]

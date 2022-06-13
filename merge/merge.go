@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 
 	"sort"
-	"strconv"
 
 	"github.com/gnolang/gno/pkgs/command"
 	"github.com/gnolang/gno/pkgs/errors"
+
+	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/piux2/gnobounty7/extract"
 )
 
 // mergeApp section
@@ -17,12 +19,14 @@ import (
 type mergeOptions struct {
 	BalanceFile    string `flag:"b" help:"balances.js"`
 	DelegationFile string `flag:"d" help:"delegations.json"`
+	ValidatorFile  string `flag:"val" help:"validators.json"`
 }
 
 var DefaultMergeOptions = mergeOptions{
 
 	BalanceFile:    "", // required
 	DelegationFile: "", // required
+	ValidatorFile:  "", // required
 
 }
 
@@ -47,25 +51,32 @@ func MergeApp(cmd *command.Command, args []string, iopts interface{}) error {
 
 	if len(args) != 0 {
 
-		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json\n")
+		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json --val validators.json\n")
 
 	}
 
 	if opts.BalanceFile == "" {
-		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json\n")
+		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json --val validators.json\n")
 
 		return errors.New("--b file not specified\n")
 
 	}
 
 	if opts.DelegationFile == "" {
-		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json\n")
+		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json --val validators.json\n")
 
 		return errors.New("--d file not specified\n")
 	}
 
+	if opts.ValidatorFile == "" {
+		cmd.ErrPrintfln("Usage: extractor merge --b balances.json --d delegations.json --val validators.json\n")
+
+		return errors.New("--val file not specified\n")
+	}
+
 	bfname := opts.BalanceFile
 	dfname := opts.DelegationFile
+	vfname := opts.ValidatorFile
 
 	b, err := readBalances(bfname)
 
@@ -81,7 +92,14 @@ func MergeApp(cmd *command.Command, args []string, iopts interface{}) error {
 		return errors.New("can not parse delegations file", err2.Error())
 	}
 
-	m := merge(b, d)
+	v, err3 := readValidators(vfname)
+
+	if err2 != nil {
+
+		return errors.New("can not parse validators file", err3.Error())
+	}
+
+	m := merge(b, d, v)
 
 	prettyJson(m)
 
@@ -91,7 +109,7 @@ func MergeApp(cmd *command.Command, args []string, iopts interface{}) error {
 
 // Merge balances and delegation by address and calculate total uatom
 
-func merge(balances []Balance, delegations []Delegation) []Balance {
+func merge(balances []Balance, delegations []Delegation, validators map[string]extract.ValExtract) []Balance {
 
 	// quick sort O(nlogn) to O(n^2)
 	// sort balances by address
@@ -128,7 +146,7 @@ func merge(balances []Balance, delegations []Delegation) []Balance {
 
 		} else if bAddress == dAddress {
 
-			newBalance, err := mergeRecord(b, d)
+			newBalance, err := mergeRecord(b, d, validators)
 
 			// continue without interrupting merging process
 			if err != nil {
@@ -147,7 +165,7 @@ func merge(balances []Balance, delegations []Delegation) []Balance {
 	return balances
 }
 
-func mergeRecord(b Balance, d Delegation) (Balance, error) {
+func mergeRecord(b Balance, d Delegation, validators map[string]extract.ValExtract) (Balance, error) {
 
 	// if we can not join records by address, ignore it.do nothing
 	if b.Address != d.DelegatorAddress {
@@ -155,19 +173,29 @@ func mergeRecord(b Balance, d Delegation) (Balance, error) {
 		return b, nil
 	}
 
-	// loop through []coins and if there is "share" denom, sum it,
-	// otherwise add a Coin{amount: shares, denom: "share"}
+	validator, ok := validators[d.ValidatorAddress]
 
-	//if the balance has the "shares" coin, we sum them, otherwise we add a new "shares" coin in the Coins[]
-	hasShares := false
+	if ok == false {
+
+		return b, fmt.Errorf("%s does not exist in the validator map", d.ValidatorAddress)
+	}
+
+	// loop through []coins and if there is "duatom" denom, sum it,
+	// otherwise add a Coin{amount: duatom, denom: "duatom"}
+	// NOTE: duatom is delegation shares coverted back to token in uatom.
+	// we might not get 1:1 from share back to uatom because the validator might got slashed after
+	// a user delegated the tokens.
+
+	//if the balance has the "duatom" coin, we sum them, otherwise we add a new "duatom" coin in the Coins[]
+	hasDuatom := false
 
 	for i, bcoin := range b.Coins {
 
-		if bcoin.Denom == "shares" {
+		if bcoin.Denom == "duatom" {
 
-			hasShares = true
+			hasDuatom = true
 
-			sum, err := addShares(bcoin.Amount, d.Shares)
+			sum, err := addShares(bcoin.Amount, d.Shares, validator)
 
 			if err != nil {
 
@@ -181,9 +209,15 @@ func mergeRecord(b Balance, d Delegation) (Balance, error) {
 		}
 	}
 
-	if hasShares == false {
+	if hasDuatom == false {
+		sum, err := addShares("0", d.Shares, validator)
+		if err != nil {
 
-		b.Coins = append(b.Coins, Coin{Amount: d.Shares, Denom: "shares"})
+			return b, errors.New("can not add %s and %s ", "0", d.Shares)
+
+		}
+
+		b.Coins = append(b.Coins, Coin{Amount: sum, Denom: "duatom"})
 
 	}
 
@@ -191,32 +225,26 @@ func mergeRecord(b Balance, d Delegation) (Balance, error) {
 
 }
 
-// TODO: There is an rounding issue adding two numbers with large decical. see TestAddShares
-// "1234567890.100000000000000000", "0.200000000000000000"
-// github.com/cosmos/cosmos-sdk/types/decimal.go  skd.Dec
+func addShares(uatom string, shares string, v extract.ValExtract) (string, error) {
 
-func addShares(a string, b string) (string, error) {
-
-	afloat, err := strconv.ParseFloat(a, 64)
+	a, err := types.NewDecFromStr(uatom)
 
 	if err != nil {
 
-		return "", errors.New(a, err.Error())
-
+		return "", err
 	}
 
-	bfloat, err := strconv.ParseFloat(b, 64)
+	s, err2 := types.NewDecFromStr(shares)
 
-	if err != nil {
+	if err2 != nil {
 
-		return "", errors.New(b, err.Error())
+		return "", err2
 
 	}
+	//tokens from validators delegator_share x validator.tokens/validator.shares
+	c := (s.MulInt(v.Tokens)).Quo(v.Shares)
 
-	sum := afloat + bfloat
-	s := strconv.FormatFloat(sum, 'f', 18, 64)
-
-	return s, err
+	return a.Add(c).String(), err
 
 }
 
@@ -261,6 +289,33 @@ func readDelegations(dfname string) ([]Delegation, error) {
 	}
 
 	return delegations, nil
+}
+
+func readValidators(vfname string) (map[string]extract.ValExtract, error) {
+
+	vf, err := ioutil.ReadFile(vfname)
+
+	if err != nil {
+
+		return nil, errors.New("can not read validator file", vfname, err.Error())
+
+	}
+	validators := []extract.ValExtract{}
+
+	err = json.Unmarshal(vf, &validators)
+
+	if err != nil {
+		return nil, errors.New("can not parse validator json file", vfname, err.Error())
+	}
+
+	vmap := map[string]extract.ValExtract{}
+	for _, v := range validators {
+
+		vmap[v.ValAddress] = v
+	}
+
+	return vmap, nil
+
 }
 
 // balance sort by Address

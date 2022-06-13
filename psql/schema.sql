@@ -42,8 +42,12 @@ acc_address VARCHAR NOT NULL,
 
 moniker VARCHAR NOT NULL,
 
-CONSTRAINT val UNIQUE (val_address)
+tokens VARCHAR NOT NULL,
+shares VARCHAR NOT NULL,
+ts_ratio VARCHAR NOT NULL,
+height NUMERIC NOT NULL,
 
+CONSTRAINT val UNIQUE (val_address)
 
 );
 

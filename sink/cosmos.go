@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/piux2/gnobounty7/config"
 )
 
@@ -36,15 +34,15 @@ func LoadAppStore(appdb tmdb.DB) *storetypes.CommitMultiStore {
 
 	//	stakingStoreKey := storetypes.NewKVStoreKey(stakingtypes.StoreKey)
 	//authStoreKey := storetypes.NewKVStoreKey(authtypes.StoreKey)
-	bankStoreKey := storetypes.NewKVStoreKey(banktypes.StoreKey)
+	//	bankStoreKey := storetypes.NewKVStoreKey(banktypes.StoreKey)
 
 	// others might use storetypes.StoreTypeDB
 	// QuickSync's database uses IAVL
-	storeType := storetypes.StoreTypeIAVL
+	//storeType := storetypes.StoreTypeIAVL
 
 	//cms.MountStoreWithDB(stakingStoreKey, storeType, nil)
 	//cms.MountStoreWithDB(authStoreKey, storeType, nil)
-	cms.MountStoreWithDB(bankStoreKey, storeType, nil)
+	//cms.MountStoreWithDB(bankStoreKey, storeType, nil)
 
 	fmt.Printf("Load application state at the latest height ... ")
 	err := cms.LoadLatestVersion()
@@ -58,14 +56,6 @@ func LoadAppStore(appdb tmdb.DB) *storetypes.CommitMultiStore {
 	// create a new store key to retrive the store, you will get nil
 	// Don't know why it will use a struct pointer as key, and a the mean time KVStore still
 	// check duplication of name in stead.
-
-	bankStore := cms.GetCommitKVStore(bankStoreKey)
-
-	if bankStore == nil {
-
-		fmt.Println("bankStore is nil")
-
-	}
 
 	fmt.Printf("Done\n")
 

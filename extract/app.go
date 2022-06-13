@@ -29,8 +29,8 @@ func ExtractApp(cmd *command.Command, args []string, iopts interface{}) error {
 	ProfileStateDB(s)
 
 	//////////
-
-	err := ExtractValidators(s, true)
+	height := int64(10562840)
+	err := ExtractValidators(s, height, true)
 
 	if err != nil {
 

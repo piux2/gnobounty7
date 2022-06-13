@@ -111,7 +111,9 @@ The shares are the uatoms in each delgation and on wallet address could have mul
      cd gnobounty7
      make
 
-     ./build/extract merge --b ../balances.json --d ../delegations.json > ../merged.json
+     ./build/extract merge --b ../balances.json --d ../delegations.json --va ../validators.json > ../merged.json
+
+     NOTE: We will need the validators.json retrieved from part 3 to take care of validator slashing calcuations. 
 
 
  #### RESULTS: Less than 3 seconds

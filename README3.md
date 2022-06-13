@@ -127,17 +127,22 @@ login and connect to your database through psql client
 
 All votes are included, not only the votes during the tally where the vote cast through bonded validators.
 The votes the people submitted but were not counted towards the end result are also included in the calculation.
-I believe that is more accurate.
+
 
 // find an account that changes votes in the proposal. Please the proposal 38 to a proposal number that you are interested in.
 
-	select * from last_vote
-	where proposal ='38' AND sender in (
+
+select * from last_vote
+where proposal ='38' AND sender in (
 	      select sender from last_vote where proposal='38'
 	      group by sender having count(*) > 1
 	  )
 	order by proposal
-	；
+	;
+
+
+  Here is value of each voting option.
+  https://github.com/cosmos/cosmos-sdk/blob/6f070623741fe0d6851d79ada41e6e2b1c67e236/proto/cosmos/gov/v1beta1/gov.proto
 
 
 
@@ -151,6 +156,19 @@ I believe that is more accurate.
 
 
 // You can be creative to join and link tables and heights
+
+#### Export validator tokena and shares information from postgreSQL
+
+the validator state is captured at the height 10562840
+We will need this to merge the balance and staking information. 
+
+// export validator as json
+COPY (
+  SELECT json_agg(row_to_json(validator)) :: text
+  FROM validator
+
+) to '/tmp/validator_10562840.json';
+
 
 ## For people who set up PostgreSQL first time.
 

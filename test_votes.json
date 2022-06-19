@@ -1,0 +1,21 @@
+[  {
+  "voter_address": "cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d",
+  "height": 10205826,
+  "tx_hash": "B77449BE0E21118658D4DAC1929078DA68949602DE534FBA0962E0D04413920B",
+  "option": "{\"option\":3,\"weight\":\"1.000000000000000000\"}",
+  "proposal_id": "38"
+},
+{
+    "voter_address": "cosmos1hlxwfydgm4sklr6twywxtnrqg9gaux0yy0u722",
+    "height": 10467247,
+    "tx_hash": "3B284F0F7B092FC9332CD4058BD0FE0595AB18CDF6089494EAAE8056B8107BF3",
+    "option": "{\"option\":3,\"weight\":\"1.000000000000000000\"}",
+    "proposal_id": "38"
+  },
+{
+  "voter_address": "cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer",
+  "height": 10205832,
+  "tx_hash": "A71791EB98F0692AD6EAB28ABB693365C77D395FB51AAC89E8EBBC5D98A122F8",
+  "option": "{\"option\":1,\"weight\":\"1.000000000000000000\"}",
+  "proposal_id": "38"
+}]

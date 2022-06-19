@@ -14,20 +14,23 @@ import (
 var bfile *string
 var dfile *string
 var vfile *string
+var votefile *string
 
 func init() {
 
 	bfile = flag.String("b", "", "balances.json file name")
 	dfile = flag.String("d", "", "delegations.json file name")
 	vfile = flag.String("val", "", "validators.json file name")
+	votefile = flag.String("vote", "", "votes.json file name")
 
-	if *bfile == "" || *dfile == "" || *vfile == "" {
+	if *bfile == "" || *dfile == "" || *vfile == "" || *votefile == "" {
 
 		*bfile = "test_balances.json"
 		*dfile = "test_delegations.json"
 		*vfile = "test_validators.json"
+		*votefile = "test_votes.json"
 
-		fmt.Println("\nyou can load your own data to test with the flag options --b balancefile.json, --d delegationsfile.json, --v validatorsfile.json ")
+		fmt.Println("\nyou can load your own data to test with the flag options --b balancefile.json --d delegationsfile.json --val validatorsfile.json --vote votesfile.json ")
 
 	}
 
@@ -100,41 +103,41 @@ var vratio4, _ = types.NewDecFromStr("0.950004682354975250")
 var validators = map[string]extract.ValExtract{
 
 	"cosmosvaloper1n229vhepft6wnkt5tjpwmxdmcnwz55jv3vp7ed": extract.ValExtract{
-		"cosmosvaloper1n229vhepft6wnkt5tjpwmxdmcnwz55jv3vp7ed",
-		"cosmos1qtxec3ggeuwnca9mmngw7vf6ctw54cppusml9r",
-		"test validator 1",
-		10562840,
-		types.NewInt(int64(883350665)),
-		vshare1,
-		vratio1,
+		ValAddress: "cosmosvaloper1n229vhepft6wnkt5tjpwmxdmcnwz55jv3vp7ed",
+		AccAddress: "cosmos1qtxec3ggeuwnca9mmngw7vf6ctw54cppusml9r",
+		Moniker:    "test validator 1",
+		Height:     10562840,
+		Tokens:     types.NewInt(int64(883350665)),
+		Shares:     vshare1,
+		TS_Ratio:   vratio1,
+	},
+	"cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0": extract.ValExtract{
+		ValAddress: "cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0",
+		AccAddress: "cosmos1zmr5mglwkkru7m3q8sxcg66gxr508v6hltcj9m",
+		Moniker:    "test validator 2",
+		Height:     10562840,
+		Tokens:     types.NewInt(int64(4373508)),
+		Shares:     vshare2,
+		TS_Ratio:   vratio2,
 	},
 	"cosmosvaloper1tfk30mq5vgqjdly92kkhhq3raev2hnz6eete3": extract.ValExtract{
-		"cosmosvaloper1tfk30mq5vgqjdly92kkhhq3raev2hnz6eete3",
-		"cosmos1998928nfs697ep5d825y5jah0nq9zrtd2ms37d",
-		"test validator 3",
-		10562840,
-		types.NewInt(int64(214104045)),
-		vshare3,
-		vratio3,
+		ValAddress: "cosmosvaloper1tfk30mq5vgqjdly92kkhhq3raev2hnz6eete3",
+		AccAddress: "cosmos1998928nfs697ep5d825y5jah0nq9zrtd2ms37d",
+		Moniker:    "test validator 3",
+		Height:     10562840,
+		Tokens:     types.NewInt(int64(214104045)),
+		Shares:     vshare3,
+		TS_Ratio:   vratio3,
 	},
 	"cosmosvaloper196ax4vc0lwpxndu9dyhvca7jhxp70rmcvrj90c": extract.ValExtract{
 
-		"cosmosvaloper196ax4vc0lwpxndu9dyhvca7jhxp70rmcvrj90c",
-		"cosmos19v9ej55ataqrfl39v83pf4e0dm69u89rkuasx5",
-		"test validator 4",
-		10562840,
-		types.NewInt(int64(475008)),
-		vshare4,
-		vratio4,
-	},
-	"cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0": extract.ValExtract{
-		"cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0",
-		"cosmos1zmr5mglwkkru7m3q8sxcg66gxr508v6hltcj9m",
-		"test validator 2",
-		10562840,
-		types.NewInt(int64(4373508)),
-		vshare2,
-		vratio2,
+		ValAddress: "cosmosvaloper196ax4vc0lwpxndu9dyhvca7jhxp70rmcvrj90c",
+		AccAddress: "cosmos19v9ej55ataqrfl39v83pf4e0dm69u89rkuasx5",
+		Moniker:    "test validator 4",
+		Height:     10562840,
+		Tokens:     types.NewInt(int64(475008)),
+		Shares:     vshare4,
+		TS_Ratio:   vratio4,
 	},
 }
 
@@ -229,41 +232,62 @@ func TestMerge(t *testing.T) {
 	balances, err := readBalances(*bfile)
 	delegations, err2 := readDelegations(*dfile)
 	validators, err3 := readValidators(*vfile)
+	votes, err4 := readVotes(*votefile)
 	assert.Nil(err)
 	assert.Nil(err2)
 	assert.Nil(err3)
+	assert.Nil(err4)
 
-	m := merge(balances, delegations, validators)
+	m := mergeBalanceAndDelegations(balances, delegations, validators)
+
+	m = mergeBalanceAndVotes(m, votes)
 	prettyJson(m)
-	assert.Equal(3, len(m))
+	assert.Equal(6, len(m))
 
 	// balance are sorted, joined and merged with summed shares
-	assert.Equal("cosmos1qajhwf6gs0ezyjmx2t96qjvyxugaefuwpf7qae", m[0].Address)
-	assert.Equal("11343922", m[0].Coins[0].Amount)
-	assert.Equal("uatom", m[0].Coins[0].Denom)
+	assert.Equal("cosmos1hlxwfydgm4sklr6twywxtnrqg9gaux0yy0u722", m[0].Address)
+	assert.Equal("330000.000000000000000000", m[0].Coins[0].Amount)
+	assert.Equal("duatom", m[0].Coins[0].Denom)
 	assert.Equal(1, len(m[0].Coins))
 
-	assert.Equal("cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer", m[1].Address)
-	assert.Equal("3698263.692474798768082056", m[1].Coins[0].Amount)
-	assert.Equal("duatom", m[1].Coins[0].Denom)
+	assert.Equal("cosmos1qajhwf6gs0ezyjmx2t96qjvyxugaefuwpf7qae", m[1].Address)
+	assert.Equal("11343922", m[1].Coins[0].Amount)
+	assert.Equal("uatom", m[1].Coins[0].Denom)
 	assert.Equal(1, len(m[1].Coins))
 
-	assert.Equal("cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d", m[2].Address)
+	assert.Equal("cosmos1qbqdng8wen7lw392slzmjdr8vdeg9ermjxejer", m[2].Address)
+	assert.Equal("3698263.692474798768082056", m[2].Coins[0].Amount)
+	assert.Equal("duatom", m[2].Coins[0].Denom)
+	assert.Equal(1, len(m[2].Coins))
 
-	assert.Equal(2, len(m[2].Coins))
-	assert.Equal("34141001", m[2].Coins[0].Amount)
-	assert.Equal("uatom", m[2].Coins[0].Denom)
-	assert.Equal("2263625.180360638740055647", m[2].Coins[1].Amount)
-	assert.Equal("duatom", m[2].Coins[1].Denom)
+	assert.Equal("cosmos1qcqgpxeyv6w3vp76e5qg39zf6fqwledswt7l3d", m[3].Address)
+	assert.Equal("34141001", m[3].Coins[0].Amount)
+	assert.Equal("uatom", m[3].Coins[0].Denom)
+	assert.Equal("2263625.180360638740055647", m[3].Coins[1].Amount)
+	assert.Equal("duatom", m[3].Coins[1].Denom)
+	assert.Equal(2, len(m[3].Coins))
+
+	assert.Equal("cosmos1qrsxstyxns0eld4fwsslz3canzezwv8waa2jew", m[4].Address)
+	assert.Equal("173283.427765439974562386", m[4].Coins[0].Amount)
+	assert.Equal("duatom", m[4].Coins[0].Denom)
+	assert.Equal(1, len(m[0].Coins))
+
+	assert.Equal("cosmos1zm3zw2v0f003a4272jd2m795734d5tlrxn8r6t", m[5].Address)
+	assert.Equal("100.000000000000000000", m[5].Coins[0].Amount)
+	assert.Equal("duatom", m[5].Coins[0].Denom)
+	assert.Equal(1, len(m[0].Coins))
 
 }
+
 func TestSort(t *testing.T) {
 
 	balances, err := readBalances(*bfile)
 	delegations, err2 := readDelegations(*dfile)
+	votes, err3 := readVotes(*votefile)
 
 	assert.Nil(t, err)
 	assert.Nil(t, err2)
+	assert.Nil(t, err3)
 
 	//	// sort balances by address
 	sort.Sort(balanceSort(balances))
@@ -274,6 +298,11 @@ func TestSort(t *testing.T) {
 	sort.Sort(delegationSort(delegations))
 
 	assert.Equal(t, true, sort.IsSorted(balanceSort(balances)))
+
+	// sort votes by sender address
+	sort.Sort(voteSort(votes))
+
+	assert.Equal(t, true, sort.IsSorted(voteSort(votes)))
 
 }
 func TestReadBalances(t *testing.T) {
@@ -304,5 +333,16 @@ func TestReadValidators(t *testing.T) {
 	v, err := readValidators(*vfile)
 	assert.Nil(t, err)
 	assert.Equal(t, 4, len(v))
+
+}
+
+func TestReadVotes(t *testing.T) {
+
+	fmt.Println(*votefile)
+	votes, err := readVotes(*votefile)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(votes))
+
+	prettyJson(votes)
 
 }

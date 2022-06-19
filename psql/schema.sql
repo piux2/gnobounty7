@@ -95,8 +95,8 @@ FROM crosstab(
   ) AS ct ("height" text, "submit" text, "end" text,"drop" text)
 ;
 
--- select unique final votes, if there is a change vote it will have  more than one entries.
-CREATE VIEW last_vote AS
+-- select unique votes that more than one options, if there is a change vote it will have  more than one entries.
+CREATE VIEW more_vote AS
 SELECT o.proposal, o.sender, o.option from crosstab_proposal o,
 (
   select proposal, sender, count(*) from crosstab_proposal group by proposal, sender having count(*)>1

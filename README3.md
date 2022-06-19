@@ -82,16 +82,16 @@ Each proposal only has a submitted time and end time. To find the corresponding 
 It took 4.2 hours to download a 2.4T archive node from QuickSync.
 
 applicaton.db, state.db, blockstore.db contains the height of state from height 5200791 (2019-12-11), which is when cosmos-hub3 launched
-Here is no application state data before that.
+There is no application state data before that.
 
-processed 5,271,515 blocks
+	processed 5,271,515 blocks
 
-real    94m37.238s
-user    54m50.994s
-sys     3m7.935s
+	real    94m37.238s
+	user    54m50.994s
+	sys     3m7.935s
 
-600 rows inserted per second
-929 blocks per second scanned.
+	600 rows inserted per second
+	929 blocks per second scanned.
 
 
 ### Instruction
@@ -121,24 +121,68 @@ please make sure
 #### AFTER  ./build/exactor extract
 
 
-Finally we can get some interesting insights into the data.
+Finally we will get the data needed for the next step
 
 login and connect to your database through psql client
 
 All votes are included, not only the votes during the tally where the vote cast through bonded validators.
 The votes the people submitted but were not counted towards the end result are also included in the calculation.
 
+#### find the last vote in a tallied proposal.
+	create view last_vote_pro69 AS
+	 select sender as voter_address, height,tx_hash,option,proposal as proposal_id from (select distinct on (sender) sender, height, tx_hash, option, proposal from crosstab_proposal
+	 where proposal = '69'
+	 order by sender, proposal, height desc
+	 ) a order by height
+	 ;
 
-// find an account that changes votes in the proposal. Please the proposal 38 to a proposal number that you are interested in.
+Test:  The last_vote_pro69 has no duplicated entries of address
 
-
-select * from last_vote
-where proposal ='38' AND sender in (
-	      select sender from last_vote where proposal='38'
-	      group by sender having count(*) > 1
-	  )
-	order by proposal
+	select * from last_vote_pro69 where voter_address IN (
+	select voter_address from last_vote_pro69 group by voter_address having count (*) >1)
 	;
+
+
+Assert: 0 rows returned
+
+### Export  last_vote_pro69 as json
+// pass the copy result through sed to replace double backslash to single backslash
+
+	COPY (
+	  SELECT json_agg(row_to_json(last_vote_pro69)) :: text
+	  FROM last_vote_pro69
+
+	) to PROGRAM $$ sed 's/\\\\/\\/g' > '/tmp/last_vote_pro69.json'$$;
+
+
+### Export validator token and shares information from postgreSQL
+
+the validator state is captured at the height 10562840
+We will need it to merge the balance and staking information.
+
+Export validator as json:
+
+	COPY (
+	  SELECT json_agg(row_to_json(validator)) :: text
+	  FROM validator
+
+	) to '/tmp/validator_10562840.json';
+
+
+
+### For people would like to explore more
+
+ You can be creative to join and link tables and heights
+ Find an account that changes votes in the proposal. Please the proposal 38 to a proposal number that you are interested in.
+
+
+	select * from more_vote
+	where proposal ='69' AND sender in (
+		      select sender from more_vote where proposal='69'
+		      group by sender having count(*) > 1
+		  )
+		order by proposal
+		;
 
 
   Here is value of each voting option.
@@ -152,22 +196,9 @@ where proposal ='38' AND sender in (
 
 // All all votes of a proposal, replace the proposal id with the one you are interested in.
 
-	select * from crosstab_proposal where proposal = '38'
+	select * from crosstab_proposal where proposal = '69'
 
 
-// You can be creative to join and link tables and heights
-
-#### Export validator tokena and shares information from postgreSQL
-
-the validator state is captured at the height 10562840
-We will need this to merge the balance and staking information. 
-
-// export validator as json
-COPY (
-  SELECT json_agg(row_to_json(validator)) :: text
-  FROM validator
-
-) to '/tmp/validator_10562840.json';
 
 
 ## For people who set up PostgreSQL first time.
@@ -178,7 +209,7 @@ COPY (
  https://www.how2shout.com/linux/install-postgresql-13-on-aws-ec2-amazon-linux-2/
  https://techviewleo.com/install-postgresql-12-on-amazon-linux/
 
--  Allocate defual data directory
+-  Allocate default data directory
 login as postgres : sudo su - postgres
 will put you in the postgres data file's grandparent directory
 

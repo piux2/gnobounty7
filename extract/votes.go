@@ -13,7 +13,8 @@ type VoteExtract struct {
 	Height   int64  `json:"height"`
 	TxHash   string `json:"tx_hash"`
 	Sender   string `json:"voter_address"`
-	Proposal uint64 `json:"proposal_id"`
+	Option   string `json:"option"`
+	Proposal string `json:"proposal_id"`
 }
 
 //if sink is true, store the result to the sink others print it as json line.

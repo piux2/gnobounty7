@@ -6,6 +6,8 @@ import (
 	"github.com/piux2/gnobounty7/sink"
 )
 
+const STATE_HEIGHT = int64(10562840)
+
 func ExtractApp(cmd *command.Command, args []string, iopts interface{}) error {
 
 	cf := iopts.(config.ConfigFile)
@@ -29,7 +31,8 @@ func ExtractApp(cmd *command.Command, args []string, iopts interface{}) error {
 	ProfileStateDB(s)
 
 	//////////
-	height := int64(10562840)
+	height := STATE_HEIGHT
+
 	err := ExtractValidators(s, height, true)
 
 	if err != nil {
